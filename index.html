@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#eaf1fb">
+<title>Stok Opname Gudang</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📦</text></svg>">
+<style>
+/* ===== iOS Light · Liquid Glass ===== */
+:root{
+  --ink:#1c1c1e;--mut:#6e6e73;--blue:#007aff;--in:#248a3d;--out:#d70015;--adj:#b25000;--hl:#ffd60a;
+  --glass:rgba(255,255,255,.52);--glass-strong:rgba(255,255,255,.72);
+  --edge:rgba(255,255,255,.75);--line:rgba(60,60,67,.14);--r:22px;--rs:14px;
+  --shadow:0 10px 30px rgba(40,60,110,.12),0 1px 3px rgba(40,60,110,.08);
+  --blur:blur(26px) saturate(185%);
+  color-scheme:light}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{height:100%;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;min-height:100%;color:var(--ink);background:#eaf1fb;
+  font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+/* latar warna lembut agar efek kaca terlihat */
+body::before{content:"";position:fixed;inset:0;z-index:-1;
+  background:
+   radial-gradient(520px 420px at 8% 6%,#9fd0ff 0,transparent 70%),
+   radial-gradient(480px 400px at 96% 12%,#ffd7e8 0,transparent 70%),
+   radial-gradient(560px 460px at 82% 96%,#c9f2d9 0,transparent 70%),
+   radial-gradient(500px 420px at 6% 90%,#fff0b8 0,transparent 70%),
+   linear-gradient(160deg,#f4f8ff,#eaf1fb)}
+
+/* bahan kaca */
+header,nav,.card,.tw,.stat,#msg{
+  background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--edge);box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(255,255,255,.25)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  header,nav,.card,.tw,.stat,#msg{background:var(--glass-strong)}}
+
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;margin:12px 16px 0;border-radius:var(--r);
+  padding:10px 14px 10px 18px;display:flex;align-items:center;gap:10px}
+header h1{margin:0;font-size:20px;font-weight:700;letter-spacing:-.02em}
+header .sp{flex:1}
+#sync{font-size:12px;color:var(--mut)}
+
+/* tab: segmented control ala iOS */
+nav{display:flex;gap:2px;margin:12px 16px 0;padding:4px;border-radius:999px;overflow-x:auto;scrollbar-width:none;max-width:max-content}
+nav::-webkit-scrollbar{display:none}
+nav button{border:0;background:transparent;color:var(--mut);padding:8px 16px;border-radius:999px;font:600 14px/1 inherit;font-family:inherit;white-space:nowrap;cursor:pointer;transition:background .25s,color .25s,box-shadow .25s}
+nav button.on{color:var(--ink);background:rgba(255,255,255,.95);box-shadow:0 2px 8px rgba(40,60,110,.16),inset 0 1px 0 #fff}
+
+main{max-width:1100px;margin:0 auto;padding:16px}
+.panel{display:none}.panel.on{display:block}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin-bottom:14px}
+label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--mut);font-weight:500;padding-left:4px}
+input,select,textarea{font:inherit;font-size:15px;color:var(--ink);min-width:140px;padding:10px 14px;border-radius:var(--rs);
+  background:rgba(255,255,255,.62);border:1px solid rgba(255,255,255,.85);
+  box-shadow:inset 0 1px 3px rgba(40,60,110,.12);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+input::placeholder{color:#a1a1a6}
+input[readonly]{color:var(--mut)}
+input[type=checkbox]{accent-color:var(--blue);width:18px;height:18px;padding:0;box-shadow:none}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none;border-color:var(--blue);box-shadow:0 0 0 4px rgba(0,122,255,.25)}
+button:focus-visible{outline:3px solid rgba(0,122,255,.45);outline-offset:2px}
+
+button{font:600 15px/1 inherit;font-family:inherit;padding:11px 20px;border-radius:999px;border:1px solid rgba(255,255,255,.35);
+  background:var(--blue);color:#fff;cursor:pointer;box-shadow:0 6px 16px rgba(0,122,255,.32),inset 0 1px 0 rgba(255,255,255,.45);
+  transition:transform .15s,filter .15s}
+button:hover{filter:brightness(1.05)}
+button:active{transform:scale(.96)}
+button.alt,header button{background:var(--glass-strong);color:var(--blue);border:1px solid var(--edge);
+  box-shadow:0 3px 10px rgba(40,60,110,.1),inset 0 1px 0 #fff}
+header button{padding:8px 14px;font-size:14px;opacity:1}
+button.in{background:#34c759;box-shadow:0 6px 16px rgba(52,199,89,.35),inset 0 1px 0 rgba(255,255,255,.45)}
+button.out{background:#ff3b30;box-shadow:0 6px 16px rgba(255,59,48,.32),inset 0 1px 0 rgba(255,255,255,.45)}
+
+.card{position:relative;border-radius:var(--r);padding:18px;margin-bottom:16px;overflow:hidden}
+.card::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(135deg,rgba(255,255,255,.55) 0,rgba(255,255,255,0) 38%)}
+.card>*{position:relative}
+.card h2,h2{margin:0 0 12px;font-size:20px;font-weight:700;letter-spacing:-.02em}
+h2[style]{font:700 20px/1.2 -apple-system,"SF Pro Display",system-ui,sans-serif!important;margin:4px 4px 10px!important}
+
+.tw{overflow-x:auto;border-radius:var(--r);margin-bottom:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:rgba(255,255,255,.45)}
+th{background:rgba(255,255,255,.4);font-weight:600;font-size:12px;color:var(--mut);position:sticky;top:0}
+tfoot th{color:var(--ink);font-size:14px;border-top:1px solid var(--line)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+
+.rak{display:inline-block;background:rgba(255,214,10,.85);color:#4a3b00;font-weight:700;font-size:12px;
+  padding:3px 11px;border-radius:999px;letter-spacing:.02em;box-shadow:inset 0 1px 0 rgba(255,255,255,.7)}
+.low{color:var(--out);font-weight:700}
+.pin{color:var(--in)}.pout{color:var(--out)}.padj{color:var(--adj)}
+
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.stat{flex:1;min-width:140px;border-radius:var(--r);padding:14px 16px}
+.stat b{display:block;font-size:28px;font-weight:700;letter-spacing:-.03em}
+.stat span{font-size:12px;color:var(--mut)}
+
+#msg{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+  color:var(--ink);padding:12px 22px;border-radius:999px;display:none;z-index:50;font-weight:600}
+#setup{max-width:540px;margin:48px auto}
+.hint{font-size:12px;color:var(--mut);margin:6px 4px 0}
+
+/* ponsel: tab bar melayang di bawah seperti iOS */
+@media (max-width:700px){
+  header{margin:8px 10px 0}
+  main{padding:12px 10px 100px}
+  nav{position:fixed;z-index:30;left:10px;right:10px;margin:0 auto;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:none;justify-content:space-between}
+  nav button{flex:1;padding:10px 8px;font-size:12px}
+  #msg{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .stat{min-width:calc(50% - 6px)}
+  input,select{min-width:0;width:100%}
+  .row>label{flex:1 1 calc(50% - 12px)}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<header><h1>📦 Stok Opname Gudang</h1><span class="sp"></span><span id="sync" class="hint"></span><button id="reload">Muat ulang</button></header>
+
+<div id="app">
+<nav id="tabs">
+  <button data-t="stok" class="on">Stok &amp; Lokasi Rak</button>
+  <button data-t="trx">Barang Masuk/Keluar</button>
+  <button data-t="opn">Stok Opname</button>
+  <button data-t="rekap">Rekap Bulanan</button>
+  <button data-t="brg">Data Barang</button>
+</nav>
+<main>
+<div id="warn" class="card" hidden><b>URL Web App belum diisi.</b><p class="hint">Buka <code>index.html</code>, isi <code>API_URL</code> di bagian script dengan URL Web App Apps Script (lihat README).</p></div>
+<section class="panel on" id="stok">
+  <div class="stats" id="stats"></div>
+  <div class="row">
+    <label>Cari kode / nama<input id="q" placeholder="ketik..."></label>
+    <label>Rak<select id="fRak"><option value="">Semua rak</option></select></label>
+    <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" id="fLow" style="min-width:0"> Hanya stok menipis</label>
+  </div>
+  <div class="tw"><table><thead><tr><th>Kode</th><th>Nama</th><th>Rak</th><th class="n">Stok</th><th>Satuan</th><th class="n">Min.</th></tr></thead><tbody id="tStok"></tbody></table></div>
+</section>
+
+<section class="panel" id="trx">
+  <div class="card"><h2>Catat transaksi</h2>
+    <div class="row">
+      <label>Tanggal<input type="date" id="xTgl"></label>
+      <label>Barang<select id="xBrg"></select></label>
+      <label>Jumlah<input type="number" id="xJml" min="1" step="any" style="min-width:100px"></label>
+      <label style="flex:1">Keterangan (supplier / tujuan / no. dokumen)<input id="xKet"></label>
+      <label>Petugas<input class="pt" placeholder="opsional"></label>
+    </div>
+    <div class="row"><button class="in" data-j="Masuk">+ Barang masuk</button><button class="out" data-j="Keluar">− Barang keluar</button></div>
+    <p class="hint" id="xInfo"></p>
+  </div>
+  <h2 style="font:700 20px 'Barlow Condensed'">Riwayat terbaru</h2>
+  <div class="tw"><table><thead><tr><th>Tanggal</th><th>Kode</th><th>Nama</th><th>Jenis</th><th class="n">Jumlah</th><th>Rak</th><th>Keterangan</th><th>Petugas</th></tr></thead><tbody id="tTrx"></tbody></table></div>
+</section>
+
+<section class="panel" id="opn">
+  <div class="card"><h2>Hitung fisik</h2>
+    <div class="row">
+      <label>Barang<select id="oBrg"></select></label>
+      <label>Stok sistem<input id="oSis" readonly style="min-width:100px"></label>
+      <label>Stok fisik<input type="number" id="oFis" min="0" step="any" style="min-width:100px"></label>
+      <label style="flex:1">Catatan<input id="oKet" placeholder="mis. rusak, salah letak"></label>
+      <label>Petugas<input class="pt" placeholder="opsional"></label>
+      <button id="oSave">Simpan opname</button>
+    </div>
+    <p class="hint">Jika ada selisih, stok otomatis disesuaikan dan tercatat sebagai “Penyesuaian”.</p>
+  </div>
+  <div class="tw"><table><thead><tr><th>Tanggal</th><th>Kode</th><th>Nama</th><th class="n">Sistem</th><th class="n">Fisik</th><th class="n">Selisih</th><th>Catatan</th><th>Petugas</th></tr></thead><tbody id="tOpn"></tbody></table></div>
+</section>
+
+<section class="panel" id="rekap">
+  <div class="row"><label>Bulan<input type="month" id="rBln"></label><button class="alt" id="rCsv">Unduh CSV</button></div>
+  <div class="tw"><table><thead><tr><th>Kode</th><th>Nama</th><th>Rak</th><th class="n">Stok awal</th><th class="n">Masuk</th><th class="n">Keluar</th><th class="n">Penyesuaian</th><th class="n">Stok akhir</th></tr></thead><tbody id="tRekap"></tbody><tfoot id="fRekap"></tfoot></table></div>
+</section>
+
+<section class="panel" id="brg">
+  <div class="card"><h2>Tambah / ubah barang</h2>
+    <div class="row">
+      <label>Kode<input id="bKode" style="min-width:110px"></label>
+      <label style="flex:1">Nama barang<input id="bNama"></label>
+      <label>Satuan<input id="bSat" placeholder="pcs, dus, kg" style="min-width:100px"></label>
+      <label>Lokasi rak<input id="bRak" placeholder="A-01-2" style="min-width:100px"></label>
+      <label>Stok minimum<input type="number" id="bMin" min="0" value="0" style="min-width:100px"></label>
+      <button id="bSave">Simpan barang</button>
+    </div>
+    <p class="hint">Kode yang sudah ada akan diperbarui (mis. untuk pindah rak). Klik baris di tabel untuk mengisi form.</p>
+  </div>
+  <div class="tw"><table><thead><tr><th>Kode</th><th>Nama</th><th>Satuan</th><th>Rak</th><th class="n">Min.</th></tr></thead><tbody id="tBrg"></tbody></table></div>
+</section>
+</main>
+</div>
+<div id="msg" role="status"></div>
+
+<script>
+// ISI DENGAN URL WEB APP APPS SCRIPT ANDA
+const API_URL = "";   // contoh: "https://script.google.com/macros/s/XXXX/exec"
+
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => Number(v) || 0, fmt = n => num(n).toLocaleString('id-ID');
+const ls = { get:k=>{try{return localStorage.getItem(k)||''}catch(e){return ''}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}} };
+let USER = ls.get('user');
+let D = { barang:[], transaksi:[], opname:[] };
+const today = () => new Date(Date.now() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,10);
+
+function toast(t){ const m=$('#msg'); m.textContent=t; m.style.display='block'; clearTimeout(toast.t); toast.t=setTimeout(()=>m.style.display='none',3000); }
+
+async function load(){
+  $('#sync').textContent='Memuat…';
+  try{
+    const r = await fetch(API_URL); const j = await r.json();
+    if(j.error) throw new Error(j.error);
+    D = j; $('#sync').textContent='Tersambung · '+new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+    render();
+  }catch(e){ $('#sync').textContent='Gagal'; toast('Gagal memuat: '+e.message); }
+}
+async function send(action,data){
+  try{
+    const r = await fetch(API_URL,{method:'POST',body:JSON.stringify({action,data})}); const j = await r.json();
+    if(j.error) throw new Error(j.error);
+    toast('Tersimpan'); await load(); return true;
+  }catch(e){ toast('Gagal menyimpan: '+e.message); return false; }
+}
+
+function stokMap(){
+  const m = {};
+  D.barang.forEach(b=>m[b.Kode]=0);
+  D.transaksi.forEach(t=>{ const q=num(t.Jumlah); m[t.Kode]=(m[t.Kode]||0)+(t.Jenis==='Keluar'?-q:q); });
+  return m;
+}
+const brg = k => D.barang.find(b=>String(b.Kode)===String(k));
+
+function render(){
+  const sm = stokMap();
+  // opsi dropdown
+  const opts = D.barang.map(b=>`<option value="${esc(b.Kode)}">${esc(b.Kode)} — ${esc(b.Nama)}</option>`).join('');
+  ['#xBrg','#oBrg'].forEach(s=>{ const v=$(s).value; $(s).innerHTML=opts; if(v) $(s).value=v; });
+  const raks = [...new Set(D.barang.map(b=>b.Rak).filter(Boolean))].sort();
+  const cur = $('#fRak').value;
+  $('#fRak').innerHTML = '<option value="">Semua rak</option>'+raks.map(r=>`<option${r===cur?' selected':''}>${esc(r)}</option>`).join('');
+  // stok
+  const q = $('#q').value.toLowerCase(), fr = $('#fRak').value, low = $('#fLow').checked;
+  const list = D.barang.filter(b=>(!q||(b.Kode+' '+b.Nama).toLowerCase().includes(q))&&(!fr||b.Rak===fr)&&(!low||sm[b.Kode]<=num(b['Stok Minimum'])));
+  $('#tStok').innerHTML = list.map(b=>{ const s=sm[b.Kode], l=s<=num(b['Stok Minimum']);
+    return `<tr><td>${esc(b.Kode)}</td><td>${esc(b.Nama)}</td><td><span class="rak">${esc(b.Rak||'—')}</span></td><td class="n ${l?'low':''}">${fmt(s)}</td><td>${esc(b.Satuan)}</td><td class="n">${fmt(b['Stok Minimum'])}</td></tr>`}).join('') || '<tr><td colspan="6">Belum ada barang. Tambahkan di tab Data Barang.</td></tr>';
+  const m0 = new Date().toISOString().slice(0,7);
+  const bln = D.transaksi.filter(t=>String(t.Tanggal).startsWith(m0));
+  $('#stats').innerHTML = [
+    ['Jenis barang',D.barang.length],['Jumlah rak',raks.length],
+    ['Stok menipis',D.barang.filter(b=>sm[b.Kode]<=num(b['Stok Minimum'])).length],
+    ['Masuk bulan ini',bln.filter(t=>t.Jenis==='Masuk').reduce((a,t)=>a+num(t.Jumlah),0)],
+    ['Keluar bulan ini',bln.filter(t=>t.Jenis==='Keluar').reduce((a,t)=>a+num(t.Jumlah),0)]
+  ].map(([l,v])=>`<div class="stat"><b>${fmt(v)}</b><span>${l}</span></div>`).join('');
+  // riwayat
+  $('#tTrx').innerHTML = D.transaksi.slice(-100).reverse().map(t=>`<tr><td>${esc(t.Tanggal)}</td><td>${esc(t.Kode)}</td><td>${esc(t.Nama)}</td><td class="${t.Jenis==='Masuk'?'pin':t.Jenis==='Keluar'?'pout':'padj'}">${esc(t.Jenis)}</td><td class="n">${fmt(t.Jumlah)}</td><td>${esc(t.Rak)}</td><td>${esc(t.Keterangan)}</td><td>${esc(t.Petugas)}</td></tr>`).join('');
+  $('#tOpn').innerHTML = D.opname.slice(-100).reverse().map(o=>`<tr><td>${esc(o.Tanggal)}</td><td>${esc(o.Kode)}</td><td>${esc(o.Nama)}</td><td class="n">${fmt(o['Stok Sistem'])}</td><td class="n">${fmt(o['Stok Fisik'])}</td><td class="n ${num(o.Selisih)<0?'pout':num(o.Selisih)>0?'pin':''}">${fmt(o.Selisih)}</td><td>${esc(o.Keterangan)}</td><td>${esc(o.Petugas)}</td></tr>`).join('');
+  $('#tBrg').innerHTML = D.barang.map(b=>`<tr data-k="${esc(b.Kode)}" style="cursor:pointer"><td>${esc(b.Kode)}</td><td>${esc(b.Nama)}</td><td>${esc(b.Satuan)}</td><td><span class="rak">${esc(b.Rak||'—')}</span></td><td class="n">${fmt(b['Stok Minimum'])}</td></tr>`).join('');
+  info(); rekap();
+}
+function info(){ const b=brg($('#xBrg').value); if(!b){$('#xInfo').textContent='';} else {$('#xInfo').textContent=`Rak ${b.Rak||'-'} · stok sekarang ${fmt(stokMap()[b.Kode])} ${b.Satuan||''}`;}
+  const o=brg($('#oBrg').value); $('#oSis').value = o ? stokMap()[o.Kode] : ''; }
+
+function rekapRows(){
+  const bln=$('#rBln').value; if(!bln) return [];
+  return D.barang.map(b=>{ let awal=0,masuk=0,keluar=0,adj=0;
+    D.transaksi.filter(t=>String(t.Kode)===String(b.Kode)).forEach(t=>{ const q=num(t.Jumlah), s=(t.Jenis==='Keluar'?-q:q), m=String(t.Tanggal).slice(0,7);
+      if(m<bln) awal+=s; else if(m===bln){ if(t.Jenis==='Masuk')masuk+=q; else if(t.Jenis==='Keluar')keluar+=q; else adj+=q; } });
+    return {Kode:b.Kode,Nama:b.Nama,Rak:b.Rak||'',awal,masuk,keluar,adj,akhir:awal+masuk-keluar+adj}; });
+}
+function rekap(){
+  const r=rekapRows();
+  $('#tRekap').innerHTML = r.map(x=>`<tr><td>${esc(x.Kode)}</td><td>${esc(x.Nama)}</td><td><span class="rak">${esc(x.Rak||'—')}</span></td><td class="n">${fmt(x.awal)}</td><td class="n pin">${fmt(x.masuk)}</td><td class="n pout">${fmt(x.keluar)}</td><td class="n padj">${fmt(x.adj)}</td><td class="n"><b>${fmt(x.akhir)}</b></td></tr>`).join('');
+  const s=k=>r.reduce((a,x)=>a+x[k],0);
+  $('#fRekap').innerHTML = r.length?`<tr><th colspan="3">Total</th><th class="n">${fmt(s('awal'))}</th><th class="n">${fmt(s('masuk'))}</th><th class="n">${fmt(s('keluar'))}</th><th class="n">${fmt(s('adj'))}</th><th class="n">${fmt(s('akhir'))}</th></tr>`:'';
+}
+
+// ---------- events ----------
+$('#tabs').onclick = e=>{ const t=e.target.dataset.t; if(!t) return;
+  $$('#tabs button').forEach(b=>b.classList.toggle('on',b===e.target)); $$('.panel').forEach(p=>p.classList.toggle('on',p.id===t)); };
+['#q','#fRak','#fLow'].forEach(s=>$(s).oninput=render);
+$('#xBrg').onchange=info; $('#oBrg').onchange=info; $('#rBln').oninput=rekap;
+$$('[data-j]').forEach(b=>b.onclick=async()=>{
+  const k=$('#xBrg').value, q=num($('#xJml').value), bb=brg(k);
+  if(!bb||q<=0) return toast('Pilih barang dan isi jumlah');
+  if(b.dataset.j==='Keluar' && q>stokMap()[k] && !confirm('Jumlah melebihi stok sistem. Lanjutkan?')) return;
+  if(await send('transaksi',{Tanggal:$('#xTgl').value||today(),Kode:k,Nama:bb.Nama,Jenis:b.dataset.j,Jumlah:q,Rak:bb.Rak,Keterangan:$('#xKet').value,Petugas:USER})){ $('#xJml').value=''; $('#xKet').value=''; } });
+$('#oSave').onclick=async()=>{
+  const k=$('#oBrg').value, bb=brg(k), f=$('#oFis').value;
+  if(!bb||f==='') return toast('Isi stok fisik');
+  if(await send('opname',{Tanggal:today(),Kode:k,Nama:bb.Nama,'Stok Sistem':stokMap()[k],'Stok Fisik':num(f),Rak:bb.Rak,Keterangan:$('#oKet').value,Petugas:USER})){ $('#oFis').value=''; $('#oKet').value=''; } };
+$('#bSave').onclick=async()=>{
+  const d={Kode:$('#bKode').value.trim(),Nama:$('#bNama').value.trim(),Satuan:$('#bSat').value.trim(),Rak:$('#bRak').value.trim().toUpperCase(),'Stok Minimum':num($('#bMin').value)};
+  if(!d.Kode||!d.Nama) return toast('Kode dan nama wajib diisi');
+  if(await send('barang',d)) ['#bKode','#bNama','#bSat','#bRak'].forEach(s=>$(s).value=''); };
+$('#tBrg').onclick=e=>{ const tr=e.target.closest('tr'); const b=tr&&brg(tr.dataset.k); if(!b) return;
+  $('#bKode').value=b.Kode; $('#bNama').value=b.Nama; $('#bSat').value=b.Satuan; $('#bRak').value=b.Rak; $('#bMin').value=b['Stok Minimum']; scrollTo({top:0}); };
+$('#rCsv').onclick=()=>{ const r=rekapRows(); if(!r.length) return;
+  const csv=['Kode,Nama,Rak,Stok Awal,Masuk,Keluar,Penyesuaian,Stok Akhir',...r.map(x=>[x.Kode,x.Nama,x.Rak,x.awal,x.masuk,x.keluar,x.adj,x.akhir].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','))].join('\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv'})); a.download='rekap-'+$('#rBln').value+'.csv'; a.click(); };
+$('#reload').onclick=()=>API_URL&&load();
+$$('.pt').forEach(i=>{ i.value=USER; i.oninput=()=>{ USER=i.value.trim(); ls.set('user',USER); $$('.pt').forEach(o=>{ if(o!==i) o.value=i.value; }); }; });
+
+function start(){
+  $('#xTgl').value=today(); $('#rBln').value=today().slice(0,7);
+  if(!API_URL){ $('#warn').hidden=false; $('#sync').textContent='Belum tersambung'; return; }
+  load();
+}
+start();
+</script>
+</body>
+</html>
